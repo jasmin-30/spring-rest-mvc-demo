@@ -1,5 +1,7 @@
 package com.example.springrestmvcdemo.controller;
 
+import com.example.springrestmvcdemo.entities.Beer;
+import com.example.springrestmvcdemo.exception.NotFoundException;
 import com.example.springrestmvcdemo.model.BeerDTO;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,5 +38,21 @@ class BeerControllerIT {
         beerRepository.deleteAll();
         List<BeerDTO> dtos = beerController.listBeers();
         assertThat(dtos.size()).isEqualTo(0);
+    }
+
+    @Test
+    void testGetById() {
+        Beer beer = beerRepository.findAll().get(0);
+        BeerDTO beerDTO = beerController.getBeerById(beer.getId());
+
+        assertThat(beerDTO).isNotNull();
+    }
+
+    @Test
+    void testBeerIdNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            beerController.getBeerById(UUID.randomUUID());
+        });
+
     }
 }
