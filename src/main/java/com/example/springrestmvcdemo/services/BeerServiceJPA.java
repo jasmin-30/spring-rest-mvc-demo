@@ -1,5 +1,6 @@
 package com.example.springrestmvcdemo.services;
 
+import com.example.springrestmvcdemo.entities.Beer;
 import com.example.springrestmvcdemo.mappers.BeerMapper;
 import com.example.springrestmvcdemo.model.BeerDTO;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
@@ -34,8 +35,9 @@ public class BeerServiceJPA implements BeerService {
     }
 
     @Override
-    public BeerDTO saveNewBeer(BeerDTO beer) {
-        return null;
+    public BeerDTO saveNewBeer(BeerDTO beerDto) {
+        Beer savedBeer = beerRepository.save(beerMapper.beerDtoToBeer(beerDto));
+        return beerMapper.beerToBeerDto(savedBeer);
     }
 
     @Override

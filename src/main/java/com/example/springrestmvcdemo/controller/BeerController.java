@@ -47,8 +47,8 @@ public class BeerController {
     }
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity handlePost(@RequestBody BeerDTO beer) throws URISyntaxException {
-        BeerDTO savedBeer = beerService.saveNewBeer(beer);
+    public ResponseEntity handlePost(@RequestBody BeerDTO beerDto) throws URISyntaxException {
+        BeerDTO savedBeer = beerService.saveNewBeer(beerDto);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(new URI("/api/v1/beer/" + savedBeer.getId().toString()));
