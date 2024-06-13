@@ -2,6 +2,7 @@ package com.example.springrestmvcdemo.controller;
 
 import com.example.springrestmvcdemo.entities.Beer;
 import com.example.springrestmvcdemo.exception.NotFoundException;
+import com.example.springrestmvcdemo.mappers.BeerMapper;
 import com.example.springrestmvcdemo.model.BeerDTO;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ class BeerControllerIT {
 
     @Autowired
     BeerRepository beerRepository;
+    
+    @Autowired
+    BeerMapper beerMapper;
 
     @Test
     void testListBeers() {
@@ -73,5 +77,23 @@ class BeerControllerIT {
 
         Beer beer = beerRepository.findById(savedUUID).orElse(null);
         assertThat(beer).isNotNull();
+    }
+
+    @Test
+    void updateExistingBeerTest() {
+        Beer beer = beerRepository.findAll().get(0);
+        BeerDTO beerDTO = beerMapper.beerToBeerDto(beer);
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+
+        final String beerName = "UPDATED";
+        beerDTO.setBeerName(beerName);
+
+        ResponseEntity responseEntity = beerController.updateBeerById(beer.getId(), beerDTO);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        Beer updatedBeer = beerRepository.findById(beer.getId()).orElse(null);
+        assertThat(updatedBeer.getBeerName()).isEqualTo(beerName);
     }
 }
