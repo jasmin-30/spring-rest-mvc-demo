@@ -9,6 +9,7 @@ import com.example.springrestmvcdemo.exception.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.springrestmvcdemo.model.BeerDTO;
@@ -53,7 +54,7 @@ public class BeerController {
     }
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity handlePost(@RequestBody BeerDTO beerDto) throws URISyntaxException {
+    public ResponseEntity handlePost(@Validated @RequestBody BeerDTO beerDto) throws URISyntaxException {
         BeerDTO savedBeer = beerService.saveNewBeer(beerDto);
 
         HttpHeaders headers = new HttpHeaders();
