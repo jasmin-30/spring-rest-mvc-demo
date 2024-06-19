@@ -79,6 +79,8 @@ class BeerControllerIT {
         assertThat(beer).isNotNull();
     }
 
+    @Transactional
+    @Rollback
     @Test
     void updateExistingBeerTest() {
         Beer beer = beerRepository.findAll().get(0);
@@ -95,5 +97,10 @@ class BeerControllerIT {
 
         Beer updatedBeer = beerRepository.findById(beer.getId()).orElse(null);
         assertThat(updatedBeer.getBeerName()).isEqualTo(beerName);
+    }
+
+    @Test
+    void testUpdateBeerIdNotFound() {
+        assertThrows(NotFoundException.class, () -> beerController.updateBeerById(UUID.randomUUID(), BeerDTO.builder().build()));
     }
 }
