@@ -2,6 +2,7 @@ package com.example.springrestmvcdemo.controller;
 
 import com.example.springrestmvcdemo.entities.Customer;
 import com.example.springrestmvcdemo.exception.NotFoundException;
+import com.example.springrestmvcdemo.mappers.CustomerMapper;
 import com.example.springrestmvcdemo.model.CustomerDTO;
 import com.example.springrestmvcdemo.repositories.CustomerRepository;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ class CustomerControllerIT {
 
     @Autowired
     CustomerRepository customerRepository;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @Test
     void testListCustomers() {
@@ -71,5 +74,30 @@ class CustomerControllerIT {
 
         Customer savedCustomer = customerRepository.findById(savedUUID).orElse(null);
         assertThat(savedCustomer).isNotNull();
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    void testUpdateExistingCustomerById() {
+        Customer customer = customerRepository.findAll().get(0);
+        CustomerDTO customerDTO = customerMapper.customerToCustomerDto(customer);
+        customerDTO.setId(null);
+        customerDTO.setVersion(null);
+
+        final String updatedName = "UPDATED";
+        customerDTO.setName(updatedName);
+
+        ResponseEntity responseEntity = customerController.updateCustomerById(customer.getId(), customerDTO);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        Customer updatedCustomer = customerRepository.findById(customer.getId()).orElse(null);
+        assertThat(updatedCustomer).isNotNull();
+        assertThat(updatedCustomer.getName()).isEqualTo(updatedName);
+    }
+
+    @Test
+    void testUpdateCustomerNotFound() {
+        assertThrows(NotFoundException.class, () -> customerController.updateCustomerById(UUID.randomUUID(), CustomerDTO.builder().build()));
     }
 }
