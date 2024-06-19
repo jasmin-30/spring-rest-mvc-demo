@@ -1,5 +1,6 @@
 package com.example.springrestmvcdemo.services;
 
+import com.example.springrestmvcdemo.entities.Customer;
 import com.example.springrestmvcdemo.mappers.CustomerMapper;
 import com.example.springrestmvcdemo.model.CustomerDTO;
 import com.example.springrestmvcdemo.repositories.CustomerRepository;
@@ -37,8 +38,9 @@ public class CustomerServiceJPA implements CustomerService {
     }
 
     @Override
-    public CustomerDTO saveNewCustomer(CustomerDTO customer) {
-        return null;
+    public CustomerDTO saveNewCustomer(CustomerDTO customerDTO) {
+        Customer savedCustomer = customerRepository.save(customerMapper.customerDtoToCustomer(customerDTO));
+        return customerMapper.customerToCustomerDto(savedCustomer);
     }
 
     @Override
