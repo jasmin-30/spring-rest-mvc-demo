@@ -83,7 +83,7 @@ class BeerControllerTest {
                         .content(objectMapper.writeValueAsString(beerDTO))
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(2)))
+                .andExpect(jsonPath("$.length()", is(6)))
                 .andReturn();
 
         System.out.println(mvcResult.getResponse().getContentAsString());
@@ -140,6 +140,45 @@ class BeerControllerTest {
     }
 
     @Test
+    void testUpdateBeerBlankBeerName() throws Exception {
+        BeerDTO beerDTO = beerServiceImpl.listBeers().get(0);
+        beerDTO.setBeerName(null);
+
+        given(beerService.updateBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(beerDTO));
+
+        MvcResult mvcResult = mockMvc.perform(put(BeerController.BEER_PATH_ID, beerDTO.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void testUpdateBeerInvalidValues() throws Exception {
+        BeerDTO beerDTO = beerServiceImpl.listBeers().get(0);
+        beerDTO.setBeerName(null);
+        beerDTO.setBeerStyle(null);
+        beerDTO.setPrice(null);
+        beerDTO.setUpc(null);
+
+        given(beerService.updateBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(beerDTO));
+
+        MvcResult mvcResult = mockMvc.perform(put(BeerController.BEER_PATH_ID, beerDTO.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(6)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
     void testDeleteBeer() throws Exception {
         BeerDTO beer = beerServiceImpl.listBeers().get(0);
 
@@ -156,21 +195,40 @@ class BeerControllerTest {
     @Test
     void testPatchBeer() throws Exception {
         BeerDTO beer = beerServiceImpl.listBeers().get(0);
+        beer.setBeerName("New Name");
 
         given(beerService.patchBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(beer));
-
-        Map<String, String> beerMap = new HashMap<>();
-        beerMap.put("beerName", "New name");
 
         mockMvc.perform(patch(BeerController.BEER_PATH_ID, beer.getId().toString())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(beerMap)))
+                .content(objectMapper.writeValueAsString(beer)))
                 .andExpect(status().isNoContent());
 
         verify(beerService).patchBeerById(uuidArgumentCaptor.capture(), beerArgumentCaptor.capture());
 
         assertThat(beer.getId()).isEqualTo(uuidArgumentCaptor.getValue());
-        assertThat(beerMap.get("beerName")).isEqualTo(beerArgumentCaptor.getValue().getBeerName());
+        assertThat(beer.getBeerName()).isEqualTo(beerArgumentCaptor.getValue().getBeerName());
+    }
+
+    @Test
+    void testPatchBeerInvalidValues() throws Exception {
+        BeerDTO beer = beerServiceImpl.listBeers().get(0);
+        beer.setBeerStyle(null);
+        beer.setBeerName(null);
+        beer.setUpc(null);
+        beer.setPrice(null);
+
+        given(beerService.patchBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(beer));
+
+        MvcResult mvcResult = mockMvc.perform(patch(BeerController.BEER_PATH_ID, beer.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beer)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(6)))
+                .andReturn();
+
+        System.out.println(mvcResult);
     }
 }
