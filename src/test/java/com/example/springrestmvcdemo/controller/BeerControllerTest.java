@@ -210,25 +210,4 @@ class BeerControllerTest {
         assertThat(beer.getId()).isEqualTo(uuidArgumentCaptor.getValue());
         assertThat(beer.getBeerName()).isEqualTo(beerArgumentCaptor.getValue().getBeerName());
     }
-
-    @Test
-    void testPatchBeerInvalidValues() throws Exception {
-        BeerDTO beer = beerServiceImpl.listBeers().get(0);
-        beer.setBeerStyle(null);
-        beer.setBeerName(null);
-        beer.setUpc(null);
-        beer.setPrice(null);
-
-        given(beerService.patchBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(beer));
-
-        MvcResult mvcResult = mockMvc.perform(patch(BeerController.BEER_PATH_ID, beer.getId().toString())
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(beer)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(6)))
-                .andReturn();
-
-        System.out.println(mvcResult);
-    }
 }
