@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.springrestmvcdemo.exception.NotFoundException;
+import com.example.springrestmvcdemo.model.BeerStyle;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +65,10 @@ public class BeerController {
     }
 
     @GetMapping(BEER_PATH)
-    public List<BeerDTO> listBeers(@RequestParam(required = false) String beerName) {
+    public List<BeerDTO> listBeers(
+            @RequestParam(required = false) String beerName,
+            @RequestParam(required = false) BeerStyle beerStyle
+    ) {
         return beerService.listBeers(beerName);
     }
 
