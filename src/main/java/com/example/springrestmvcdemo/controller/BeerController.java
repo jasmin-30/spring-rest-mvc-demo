@@ -69,7 +69,7 @@ public class BeerController {
             @RequestParam(required = false) String beerName,
             @RequestParam(required = false) BeerStyle beerStyle
     ) {
-        return beerService.listBeers(beerName);
+        return beerService.listBeers(beerName, beerStyle);
     }
 
     @GetMapping(BEER_PATH_ID)

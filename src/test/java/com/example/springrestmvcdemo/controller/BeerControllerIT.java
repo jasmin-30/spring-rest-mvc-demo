@@ -4,6 +4,7 @@ import com.example.springrestmvcdemo.entities.Beer;
 import com.example.springrestmvcdemo.exception.NotFoundException;
 import com.example.springrestmvcdemo.mappers.BeerMapper;
 import com.example.springrestmvcdemo.model.BeerDTO;
+import com.example.springrestmvcdemo.model.BeerStyle;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +68,23 @@ class BeerControllerIT {
                 .queryParam("beerName", "IPA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(336)));
+    }
+
+    @Test
+    void testListBeersByBeerStyle() throws Exception {
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerStyle", BeerStyle.IPA.name()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(548)));
+    }
+
+    @Test
+    void testListBeersByBeerNameAndBeerStyle() throws Exception {
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerName", "IPA")
+                        .queryParam("beerStyle", BeerStyle.IPA.name()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(310)));
     }
 
     @Test

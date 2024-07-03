@@ -3,13 +3,13 @@ package com.example.springrestmvcdemo.services;
 import com.example.springrestmvcdemo.entities.Beer;
 import com.example.springrestmvcdemo.mappers.BeerMapper;
 import com.example.springrestmvcdemo.model.BeerDTO;
+import com.example.springrestmvcdemo.model.BeerStyle;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,10 +24,14 @@ public class BeerServiceJPA implements BeerService {
     private final BeerMapper beerMapper;
 
     @Override
-    public List<BeerDTO> listBeers(String beerName) {
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
         List<Beer> beerList;
-        if (StringUtils.hasText(beerName)) {
+        if (StringUtils.hasText(beerName) && beerStyle != null) {
+            beerList = listBeersByBeerNameAndBeerStyle(beerName, beerStyle);
+        } else if (StringUtils.hasText(beerName)) {
             beerList = listBeersByBeerName(beerName);
+        } else if (beerStyle != null) {
+            beerList = listBeersByBeerStyle(beerStyle);
         } else {
             beerList = beerRepository.findAll();
         }
@@ -37,8 +41,16 @@ public class BeerServiceJPA implements BeerService {
                 .toList();
     }
 
-    List<Beer> listBeersByBeerName(String beerName) {
+    public List<Beer> listBeersByBeerName(String beerName) {
         return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
+    }
+
+    public List<Beer> listBeersByBeerStyle(BeerStyle beerStyle) {
+        return beerRepository.findAllByBeerStyle(beerStyle);
+    }
+
+    public List<Beer> listBeersByBeerNameAndBeerStyle(String beerName, BeerStyle beerStyle) {
+        return beerRepository.findAllByBeerNameIsLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle);
     }
 
     @Override

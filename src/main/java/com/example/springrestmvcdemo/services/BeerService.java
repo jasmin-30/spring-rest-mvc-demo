@@ -5,9 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.example.springrestmvcdemo.model.BeerDTO;
+import com.example.springrestmvcdemo.model.BeerStyle;
 
 public interface BeerService {
-    List<BeerDTO> listBeers(String beerName);
+    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle);
     Optional<BeerDTO> getBeerById(UUID id);
     BeerDTO saveNewBeer(BeerDTO beer);
     Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beer);
