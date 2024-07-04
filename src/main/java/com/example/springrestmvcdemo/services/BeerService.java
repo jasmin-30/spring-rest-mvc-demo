@@ -8,7 +8,7 @@ import com.example.springrestmvcdemo.model.BeerDTO;
 import com.example.springrestmvcdemo.model.BeerStyle;
 
 public interface BeerService {
-    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory);
+    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize);
     Optional<BeerDTO> getBeerById(UUID id);
     BeerDTO saveNewBeer(BeerDTO beer);
     Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beer);
