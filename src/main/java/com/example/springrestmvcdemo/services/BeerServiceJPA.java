@@ -7,10 +7,12 @@ import com.example.springrestmvcdemo.model.BeerStyle;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,37 +25,65 @@ public class BeerServiceJPA implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+    private final static int DEFAULT_PAGE = 0;
+    private final static int DEFAULT_PAGE_SIZE = 25;
+
     @Override
-    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
-        List<Beer> beerList;
+    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
+
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Beer> beerList;
+
         if (StringUtils.hasText(beerName) && beerStyle != null) {
-            beerList = listBeersByBeerNameAndBeerStyle(beerName, beerStyle);
+            beerList = listBeersByBeerNameAndBeerStyle(beerName, beerStyle, pageRequest);
         } else if (StringUtils.hasText(beerName)) {
-            beerList = listBeersByBeerName(beerName);
+            beerList = listBeersByBeerName(beerName, pageRequest);
         } else if (beerStyle != null) {
-            beerList = listBeersByBeerStyle(beerStyle);
+            beerList = listBeersByBeerStyle(beerStyle, pageRequest);
         } else {
-            beerList = beerRepository.findAll();
+            beerList = beerRepository.findAll(pageRequest);
         }
 
         if (showInventory != null && !showInventory)
             beerList.forEach(beer -> beer.setQuantityOnHand(null));
 
-        return beerList.stream()
-                .map(beerMapper::beerToBeerDto)
-                .toList();
+        return beerList.map(beerMapper::beerToBeerDto);
+
+//        return beerList.stream()
+//                .map(beerMapper::beerToBeerDto)
+//                .toList();
     }
 
-    public List<Beer> listBeersByBeerName(String beerName) {
-        return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+        int queryPageNumber;
+        int queryPageSize;
+
+        if (pageNumber != null && pageNumber > 0) {
+            queryPageNumber = pageNumber - 1;
+        } else {
+            queryPageNumber = DEFAULT_PAGE;
+        }
+
+        if (pageSize == null) {
+            queryPageSize = DEFAULT_PAGE_SIZE;
+        } else {
+            queryPageSize = (pageSize > 1000) ? 1000 : pageSize;
+        }
+
+        return PageRequest.of(queryPageNumber, queryPageSize);
     }
 
-    public List<Beer> listBeersByBeerStyle(BeerStyle beerStyle) {
-        return beerRepository.findAllByBeerStyle(beerStyle);
+    public Page<Beer> listBeersByBeerName(String beerName, Pageable pageable) {
+        return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%", pageable);
     }
 
-    public List<Beer> listBeersByBeerNameAndBeerStyle(String beerName, BeerStyle beerStyle) {
-        return beerRepository.findAllByBeerNameIsLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle);
+    public Page<Beer> listBeersByBeerStyle(BeerStyle beerStyle, Pageable pageable) {
+        return beerRepository.findAllByBeerStyle(beerStyle, pageable);
+    }
+
+    public Page<Beer> listBeersByBeerNameAndBeerStyle(String beerName, BeerStyle beerStyle, Pageable pageable) {
+        return beerRepository.findAllByBeerNameIsLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle, pageable);
     }
 
     @Override

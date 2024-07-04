@@ -2,11 +2,11 @@ package com.example.springrestmvcdemo.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.UUID;
 
 import com.example.springrestmvcdemo.exception.NotFoundException;
 import com.example.springrestmvcdemo.model.BeerStyle;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,12 +65,13 @@ public class BeerController {
     }
 
     @GetMapping(BEER_PATH)
-    public List<BeerDTO> listBeers(@RequestParam(required = false) String beerName,
+    public Page<BeerDTO> listBeers(@RequestParam(required = false) String beerName,
                                    @RequestParam(required = false) BeerStyle beerStyle,
                                    @RequestParam(required = false) Boolean showInventory,
                                    @RequestParam(required = false) Integer pageNumber,
                                    @RequestParam(required = false) Integer pageSize) {
-        return beerService.listBeers(beerName, beerStyle, showInventory, 1, 25);
+        Page<BeerDTO> beerDTOS = beerService.listBeers(beerName, beerStyle, showInventory, pageNumber, pageSize);
+        return beerDTOS;
     }
 
     @GetMapping(BEER_PATH_ID)
