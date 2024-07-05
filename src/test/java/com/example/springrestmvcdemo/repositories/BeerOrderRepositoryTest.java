@@ -3,6 +3,7 @@ package com.example.springrestmvcdemo.repositories;
 import com.example.springrestmvcdemo.bootstrap.BootStrapData;
 import com.example.springrestmvcdemo.entities.Beer;
 import com.example.springrestmvcdemo.entities.BeerOrder;
+import com.example.springrestmvcdemo.entities.BeerOrderShipment;
 import com.example.springrestmvcdemo.entities.Customer;
 import com.example.springrestmvcdemo.services.BeerCsvServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,8 @@ class BeerOrderRepositoryTest {
         BeerOrder beerOrder = BeerOrder.builder()
                 .customerRef("Test order")
                 .customer(testCustomer)
+                .beerOrderShipment(BeerOrderShipment.builder()
+                        .trackingNumber("12345").build())
                 .build();
 
         BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
