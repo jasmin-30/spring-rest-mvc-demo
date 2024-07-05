@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -29,9 +30,9 @@ public class BeerServiceJPA implements BeerService {
     private final static int DEFAULT_PAGE_SIZE = 25;
 
     @Override
-    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
+    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize, String sortBy, Sort.Direction order) {
 
-        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, sortBy, order);
 
         Page<Beer> beerList;
 
@@ -55,7 +56,7 @@ public class BeerServiceJPA implements BeerService {
 //                .toList();
     }
 
-    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize, String sortBy, Sort.Direction order) {
         int queryPageNumber;
         int queryPageSize;
 
@@ -71,7 +72,12 @@ public class BeerServiceJPA implements BeerService {
             queryPageSize = (pageSize > 1000) ? 1000 : pageSize;
         }
 
-        return PageRequest.of(queryPageNumber, queryPageSize);
+        order = (order != null) ? order : Sort.Direction.ASC;
+        sortBy = (StringUtils.hasText(sortBy)) ? sortBy : "beerName";
+
+        Sort sort = Sort.by(order, sortBy);
+
+        return PageRequest.of(queryPageNumber, queryPageSize, sort);
     }
 
     public Page<Beer> listBeersByBeerName(String beerName, Pageable pageable) {

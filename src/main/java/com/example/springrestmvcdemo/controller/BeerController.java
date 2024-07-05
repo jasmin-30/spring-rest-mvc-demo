@@ -6,7 +6,9 @@ import java.util.UUID;
 
 import com.example.springrestmvcdemo.exception.NotFoundException;
 import com.example.springrestmvcdemo.model.BeerStyle;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,8 +71,10 @@ public class BeerController {
                                    @RequestParam(required = false) BeerStyle beerStyle,
                                    @RequestParam(required = false) Boolean showInventory,
                                    @RequestParam(required = false) Integer pageNumber,
-                                   @RequestParam(required = false) Integer pageSize) {
-        Page<BeerDTO> beerDTOS = beerService.listBeers(beerName, beerStyle, showInventory, pageNumber, pageSize);
+                                   @RequestParam(required = false) Integer pageSize,
+                                   @RequestParam(name = "sort_by", required = false) String sortBy,
+                                   @RequestParam(name = "order_by", required = false) Sort.Direction order) {
+        Page<BeerDTO> beerDTOS = beerService.listBeers(beerName, beerStyle, showInventory, pageNumber, pageSize, sortBy, order);
         return beerDTOS;
     }
 

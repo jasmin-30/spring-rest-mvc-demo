@@ -7,6 +7,7 @@ import com.example.springrestmvcdemo.model.BeerDTO;
 import com.example.springrestmvcdemo.model.BeerStyle;
 import com.example.springrestmvcdemo.repositories.BeerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.comparator.ComparatorMatcherBuilder;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,6 +103,22 @@ class BeerControllerIT {
     }
 
     @Test
+    void testListBeersByBeerNameAndBeerStyleAndShowInventoryTrueSortByBeerNameASC() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerName", "IPA")
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("showInventory", "true")
+                        .queryParam("pageSize", "800")
+                        .queryParam("sort_by", "beerName")
+                        .queryParam("order_by", "ASC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()", is(310)))
+                .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue(Integer.class))).andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
     void testListBeersByBeerNameAndBeerStyleAndShowInventoryFalse() throws Exception {
         mockMvc.perform(get(BeerController.BEER_PATH)
                         .queryParam("beerName", "IPA")
@@ -129,7 +146,8 @@ class BeerControllerIT {
 
     @Test
     void testListBeers() {
-        Page<BeerDTO> dtos = beerController.listBeers(null, null, false, 1, 2500);
+        Page<BeerDTO> dtos = beerController.listBeers(null, null, false, 1, 2500,
+                null, null);
         assertThat(dtos.getContent().size()).isEqualTo(1000);
     }
 
@@ -138,7 +156,8 @@ class BeerControllerIT {
     @Test
     void testEmptyList() {
         beerRepository.deleteAll();
-        Page<BeerDTO> dtos = beerController.listBeers(null, null, false, 1, 25);
+        Page<BeerDTO> dtos = beerController.listBeers(null, null, false, 1, 25,
+                null, null);
         assertThat(dtos.getContent().size()).isEqualTo(0);
     }
 
