@@ -84,9 +84,9 @@ public class BeerController {
         return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity handleNotFoundException() {
-        log.error("In exception handler");
-        return ResponseEntity.notFound().build();
-    }
+//    @ExceptionHandler(NotFoundException.class)
+//    public ResponseEntity handleNotFoundException() {
+//        log.error("In exception handler");
+//        return ResponseEntity.notFound().build();
+//    }
 }
