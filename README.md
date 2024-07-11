@@ -12,5 +12,5 @@ mvn spring-boot:run
 
 Voila! Your application is running on port `8080`.
 
-## Contrinutions
+## Contributions
 Open to suggestions and improvements for the code/application.
