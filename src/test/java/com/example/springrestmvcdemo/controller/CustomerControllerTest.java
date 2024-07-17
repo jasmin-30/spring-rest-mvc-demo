@@ -51,6 +51,12 @@ class CustomerControllerTest {
     @Captor
     ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
+    @Value("${spring.security.user.name}")
+    String username;
+
+    @Value("${spring.security.user.password}")
+    String password;
+
     @BeforeEach
     void setUp() {
         customerServiceImpl = new CustomerServiceImpl();
@@ -65,7 +71,7 @@ class CustomerControllerTest {
         given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(customerServiceImpl.listCustomers().get(1));
 
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
-                        .with(BeerControllerTest.jwtPostProcessor)
+                        .with(httpBasic(username, password))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
@@ -77,7 +83,7 @@ class CustomerControllerTest {
     void testListCustomers() throws Exception {
         given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH).accept(MediaType.APPLICATION_JSON)
-                        .with(BeerControllerTest.jwtPostProcessor))
+                        .with(httpBasic(username, password)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(3)));
@@ -90,7 +96,7 @@ class CustomerControllerTest {
         given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId().toString())
-                        .with(BeerControllerTest.jwtPostProcessor)
+                        .with(httpBasic(username, password))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -103,7 +109,7 @@ class CustomerControllerTest {
         given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(get(BeerController.BEER_PATH_ID, UUID.randomUUID())
-                        .with(BeerControllerTest.jwtPostProcessor))
+                        .with(httpBasic(username, password)))
                 .andExpect(status().isNotFound());
     }
 
@@ -114,7 +120,7 @@ class CustomerControllerTest {
         given(customerService.updateCustomerById(any(UUID.class), any(CustomerDTO.class))).willReturn(Optional.of(customer));
 
         mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, customer.getId().toString())
-                        .with(BeerControllerTest.jwtPostProcessor)
+                        .with(httpBasic(username, password))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customer)))
@@ -132,7 +138,7 @@ class CustomerControllerTest {
         given(customerService.deleteCustomerById(any(UUID.class))).willReturn(true);
 
         mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, customer.getId().toString())
-                        .with(BeerControllerTest.jwtPostProcessor)
+                        .with(httpBasic(username, password))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -151,7 +157,7 @@ class CustomerControllerTest {
         customerMap.put("name", "New name");
 
         mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, customer.getId().toString())
-                        .with(BeerControllerTest.jwtPostProcessor)
+                        .with(httpBasic(username, password))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
